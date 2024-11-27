@@ -1,0 +1,45 @@
+/* Estilos para el contenedor del navbar */
+.navbar {
+    position: fixed; /* Fija el navbar al top de la página */
+    top: 0;
+    left: 0;
+    width: 100%; /* Ocupa todo el ancho */
+    background-color: #333; /* Fondo oscuro */
+    display: flex; /* Distribuir elementos con flexbox */
+    justify-content: space-between; /* Espaciar elementos entre sí */
+    align-items: center; /* Centrar elementos verticalmente */
+    padding: 0.5rem 1rem; /* Espaciado interno */
+    z-index: 1000; /* Asegurar que esté encima de otros elementos */
+  }
+  
+  /* Listado del menú */
+  .navbar ul {
+    list-style: none;
+    display: flex; /* Los elementos del menú estarán en línea */
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Elementos del menú */
+  .navbar li {
+    margin: 0 1rem; /* Separación entre enlaces */
+  }
+  
+  /* Estilo de los enlaces */
+  .navbar a {
+    color: white; /* Texto blanco */
+    text-decoration: none; /* Sin subrayado */
+    font-size: 1rem;
+    transition: color 0.3s ease;
+  }
+  
+  .navbar a:hover {
+    color: #ff9800; /* Cambiar color al pasar el ratón */
+  }
+  
+  /* Estilo de las imágenes en el navbar */
+  .navbar img {
+    height: 50px; /* Altura fija para que no ocupe demasiado espacio */
+    border-radius: 50%; /* Opcional: imágenes redondeadas */
+  }
+  
