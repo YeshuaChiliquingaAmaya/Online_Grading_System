@@ -5,6 +5,7 @@ import Home from "./Home";
 import Professor from "./Professor";
 
 const App = () => {
+
   return (
     <Router>
       <Navbar />
@@ -16,6 +17,8 @@ const App = () => {
       </div>
     </Router>
   );
+
+  
 };
 
 export default App;
