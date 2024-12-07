@@ -11,63 +11,70 @@ app.use(cors());
 
 // Conexión a la base de datos
 const db = mysql.createConnection({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    port: process.env.DB_PORT,
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  port: process.env.DB_PORT,
 });
 
+// Verificar conexión
 db.connect((err) => {
-    if (err) {
-        console.error("Error al conectar a la base de datos:", err.message);
-        return;
-    }
-    console.log("Conectado a la base de datos MySQL");
+  if (err) {
+    console.error("Error al conectar a la base de datos:", err.message);
+    process.exit(1); // Salir si no hay conexión a la base de datos
+  }
+  console.log("Conectado a la base de datos MySQL");
 });
 
 // ENDPOINTS DEL BACKEND
 
-// Obtener todos los estudiantes y sus calificaciones
-app.get("/students", (req, res) => {
-    const query = `
-        SELECT 
-            users.id AS studentId, 
-            users.name AS studentName, 
-            subjects.name AS subjectName, 
-            grades.grade, 
-            grades.id AS gradeId
-        FROM grades
-        JOIN users ON grades.student_id = users.id
-        JOIN subjects ON grades.subject_id = subjects.id
-        WHERE users.role_id = 3; -- Solo estudiantes
-    `;
-    db.query(query, (err, results) => {
-        if (err) {
-            console.error("Error al obtener estudiantes:", err.message);
-            return res.status(500).send("Error al obtener estudiantes");
-        }
-        res.json(results);
-    });
+// Endpoint de inicio de sesión
+app.post("/login", (req, res) => {
+  const { email, password } = req.body;
+
+  const query = `
+      SELECT users.id, users.name, users.email, users.role_id
+      FROM users
+      WHERE users.email = ? AND users.password = ?
+  `;
+  
+  db.query(query, [email, password], (err, results) => {
+      if (err) {
+          console.error("Error al consultar el usuario:", err.message);
+          return res.status(500).send("Error al autenticar usuario");
+      }
+
+      if (results.length === 0) {
+          return res.status(401).send("Usuario o contraseña incorrectos");
+      }
+
+      const user = results[0];
+      const roles = {
+          1: "Administrator",
+          2: "Teacher",
+          3: "Student",
+          4: "Parent",
+      };
+
+      const userRole = roles[user.role_id]; // Asignar rol basado en role_id
+      console.log("Usuario encontrado:", user); // Log completo del usuario
+      console.log("Rol asignado:", userRole); // Log del rol asignado
+
+      res.json({
+          user: {
+              id: user.id,
+              name: user.name,
+              email: user.email,
+              role: userRole, // Devolver el rol
+          },
+      });
+  });
 });
 
-// Actualizar una calificación
-app.put("/grades/:gradeId", (req, res) => {
-    const { grade } = req.body;
-    const { gradeId } = req.params;
-
-    const query = `UPDATE grades SET grade = ? WHERE id = ?`;
-    db.query(query, [grade, gradeId], (err, results) => {
-        if (err) {
-            console.error("Error al actualizar calificación:", err.message);
-            return res.status(500).send("Error al actualizar calificación");
-        }
-        res.json({ message: "Calificación actualizada exitosamente" });
-    });
-});
 
 // Iniciar el servidor
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-    console.log(`Servidor corriendo en el puerto ${PORT}`);
+  console.log(`Servidor corriendo en el puerto ${PORT}`);
 });
