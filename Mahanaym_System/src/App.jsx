@@ -4,6 +4,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import Login from "./Pages/Login";
 import Home from "./Pages/Home";
 import Navbar from "./Components/Navbar";
+import Students from "./Pages/Students";
+import Grades from "./Pages/Grades";
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -64,6 +66,15 @@ const App = () => {
               )
             }
           />
+          <Route
+            path="/grades"
+            element={user && user.role === "Teacher" ? <Grades /> : <Navigate to="/" />}
+          />
+          <Route
+            path="/students"
+            element={user && user.role === "Teacher" ? <Students /> : <Navigate to="/" />}
+          />
+
         </Routes>
       </div>
     </Router>

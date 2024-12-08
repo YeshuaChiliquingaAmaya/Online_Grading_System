@@ -72,6 +72,121 @@ app.post("/login", (req, res) => {
   });
 });
 
+app.get("/students", (req, res) => {
+  const query = `
+    SELECT 
+      users.id AS studentId, 
+      users.name AS studentName, 
+      grades.id AS gradeId, 
+      grades.grade, 
+      subjects.name AS subjectName
+    FROM users
+    JOIN grades ON users.id = grades.student_id
+    JOIN subjects ON grades.subject_id = subjects.id
+    WHERE users.role_id = 3; -- 3 corresponde a "Student"
+  `;
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error("Error al obtener estudiantes:", err.message);
+      return res.status(500).send("Error al obtener estudiantes");
+    }
+    res.json(results);
+  });
+});
+
+app.post("/grades", (req, res) => {
+  const { studentId, subjectId, evaluationType, grade, comment } = req.body;
+
+  if (!studentId || !subjectId || !evaluationType || !grade) {
+    return res.status(400).send("Todos los campos son obligatorios");
+  }
+
+  // Mapeo de tipos de evaluación de inglés a español
+  const evaluationTypeMap = {
+    exam: "Examen",
+    homework: "Tarea",
+    project: "Proyecto",
+  };
+
+  const evaluationTypeSpanish = evaluationTypeMap[evaluationType] || evaluationType;
+
+  const query = `
+    INSERT INTO grades (student_id, subject_id, evaluation_type, grade, comments)
+    VALUES (?, ?, ?, ?, ?)
+  `;
+
+  db.query(
+    query,
+    [studentId, subjectId, evaluationTypeSpanish, grade, comment || ""],
+    (err, results) => {
+      if (err) {
+        console.error("Error al registrar la nota:", err.message);
+        return res.status(500).send("Error al registrar la nota");
+      }
+      res.status(201).send("Nota registrada con éxito");
+    }
+  );
+});
+
+app.get("/grades", (req, res) => {
+  const query = `
+    SELECT 
+      grades.id, 
+      grades.grade, 
+      grades.comment, 
+      grades.evaluation_type, 
+      users.name AS studentName, 
+      subjects.name AS subjectName
+    FROM grades
+    JOIN users ON grades.student_id = users.id
+    JOIN subjects ON grades.subject_id = subjects.id
+  `;
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error("Error al obtener notas:", err.message);
+      return res.status(500).send("Error al obtener notas");
+    }
+
+    // Convertir tipos de evaluación de inglés a español
+    const evaluationTypeMap = {
+      exam: "Examen",
+      homework: "Tarea",
+      project: "Proyecto",
+    };
+
+    const processedResults = results.map((row) => ({
+      ...row,
+      evaluation_type: evaluationTypeMap[row.evaluation_type] || row.evaluation_type,
+    }));
+
+    res.json(processedResults);
+  });
+});
+
+app.get("/students/:studentId/subjects", (req, res) => {
+  const { studentId } = req.params;
+
+  const query = `
+    SELECT 
+      subjects.id AS subjectId, 
+      subjects.name AS subjectName
+    FROM grades
+    JOIN subjects ON grades.subject_id = subjects.id
+    WHERE grades.student_id = ?;
+  `;
+
+  db.query(query, [studentId], (err, results) => {
+    if (err) {
+      console.error("Error al obtener materias del estudiante:", err.message);
+      return res.status(500).send("Error al obtener materias");
+    }
+    res.json(results);
+  });
+});
+
+
 
 // Iniciar el servidor
 const PORT = process.env.PORT || 5000;
