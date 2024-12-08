@@ -1,12 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
+import Login from "./Pages/Login";
+import Home from "./Pages/Home";
+import Navbar from "./Components/Navbar";
 
 const App = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [message, setMessage] = useState("");
+  const [user, setUser] = useState(null);
 
-  const handleLogin = async (e) => {
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
+
+  const handleLogin = async (e, email, password) => {
     e.preventDefault();
 
     try {
@@ -21,76 +30,43 @@ const App = () => {
       if (response.ok) {
         const data = await response.json();
         const { user } = data;
-
-        console.log("Rol recibido del backend:", user.role); // Log para depuración
-
-        // Manejo de roles con un switch
-        switch (user.role) {
-          case "Teacher":
-            setMessage("Bienvenido Profesor");
-            break;
-          case "Student":
-            setMessage("Bienvenido Estudiante");
-            break;
-          case "Administrator":
-            setMessage("Bienvenido Administrador");
-            break;
-          case "Parent":
-            setMessage("Bienvenido Padre");
-            break;
-          default:
-            setMessage("Bienvenido Usuario");
-        }
+        localStorage.setItem("user", JSON.stringify(user));
+        setUser(user);
       } else {
-        const errorText = await response.text();
-        setMessage(`Error: ${errorText}`);
+        console.error("Error al iniciar sesión");
       }
     } catch (err) {
       console.error("Error al conectar con el servidor:", err.message);
-      setMessage("Error al conectar con el servidor");
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    setUser(null);
+  };
+
   return (
-    <div className="container mt-5">
-      <div className="row justify-content-center">
-        <div className="col-md-6">
-          <div className="card">
-            <div className="card-body">
-              <h3 className="card-title text-center">Iniciar Sesión</h3>
-              {message && <div className="alert alert-info">{message}</div>}
-              <form onSubmit={handleLogin}>
-                <div className="form-group">
-                  <label htmlFor="email">Correo Electrónico</label>
-                  <input
-                    type="email"
-                    className="form-control"
-                    id="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="password">Contraseña</label>
-                  <input
-                    type="password"
-                    className="form-control"
-                    id="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                </div>
-                <button type="submit" className="btn btn-primary btn-block">
-                  Iniciar Sesión
-                </button>
-              </form>
-            </div>
-          </div>
-        </div>
+    <Router>
+      {user && <Navbar user={user} onLogout={handleLogout} />}
+      <div className="container mt-5">
+        <Routes>
+          <Route
+            path="/home"
+            element={user ? <Home user={user} /> : <Navigate to="/" />}
+          />
+          <Route
+            path="/"
+            element={
+              user ? (
+                <Navigate to="/home" />
+              ) : (
+                <Login handleLogin={handleLogin} />
+              )
+            }
+          />
+        </Routes>
       </div>
-    </div>
+    </Router>
   );
 };
 
