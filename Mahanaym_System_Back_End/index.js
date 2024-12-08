@@ -257,6 +257,93 @@ app.get("/students/grades", (req, res) => {
   });
 });
 
+app.get("/parents/students", (req, res) => {
+  const parentId = req.query.parentId; // Obtener el ID del padre desde la query
+
+  if (!parentId) {
+    return res.status(400).send("ID de padre requerido");
+  }
+
+  // Consulta para obtener los hijos del padre
+  const query = `
+    SELECT 
+      users.id AS studentId,
+      users.name AS studentName
+    FROM parents_students
+    JOIN users ON parents_students.student_id = users.id
+    WHERE parents_students.parent_id = ?;
+  `;
+
+  db.query(query, [parentId], (err, results) => {
+    if (err) {
+      console.error("Error al obtener los estudiantes del padre:", err.message);
+      return res.status(500).send("Error al obtener estudiantes");
+    }
+    res.json(results);  // Enviar los resultados de los estudiantes al frontend
+  });
+});
+
+app.get("/parents/grades", (req, res) => {
+  const studentId = req.query.studentId; // Obtener el ID del estudiante desde la query
+
+  if (!studentId) {
+    return res.status(400).send("ID de estudiante requerido");
+  }
+
+  // Consulta para obtener las calificaciones del estudiante
+  const query = `
+    SELECT 
+      subjects.name AS subjectName,
+      grades.evaluation_type,
+      grades.grade,
+      grades.comments,
+      grades.created_at
+    FROM grades
+    JOIN subjects ON grades.subject_id = subjects.id
+    WHERE grades.student_id = ?;
+  `;
+
+  db.query(query, [studentId], (err, results) => {
+    if (err) {
+      console.error("Error al obtener las calificaciones del estudiante:", err.message);
+      return res.status(500).send("Error al obtener las calificaciones");
+    }
+    res.json(results);
+  });
+});
+
+app.get("/parents/students", (req, res) => {
+  const parentId = req.query.parentId; // Obtener el ID del padre desde la query
+  
+  if (!parentId) {
+    return res.status(400).send("ID de padre requerido");
+  }
+
+  // Consulta para obtener los hijos del padre
+  const query = `
+    SELECT 
+      users.id AS studentId,
+      users.name AS studentName
+    FROM parents_students
+    JOIN users ON parents_students.student_id = users.id
+    WHERE parents_students.parent_id = ?;
+  `;
+
+  db.query(query, [parentId], (err, results) => {
+    if (err) {
+      console.error("Error al obtener los estudiantes del padre:", err.message);
+      return res.status(500).send("Error al obtener estudiantes");
+    }
+
+    if (results.length === 0) {
+      return res.status(404).send("No se encontraron hijos para este padre");
+    }
+
+    res.json(results);  // Enviar los resultados de los estudiantes al frontend
+  });
+});
+
+
 
 // Iniciar el servidor
 const PORT = process.env.PORT || 5000;

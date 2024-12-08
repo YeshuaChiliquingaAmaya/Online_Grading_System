@@ -71,8 +71,8 @@ const Navbar = ({ user, onLogout }) => {
             )}
             {user.role === "Parent" && (
               <li className="nav-item">
-                <Link className="nav-link" to="/student-grades">
-                  Calificaciones del Estudiante
+                <Link className="nav-link" to="/parent-grades">
+                 Mis Hijos y Sus Calificaciones
                 </Link>
               </li>
             )}

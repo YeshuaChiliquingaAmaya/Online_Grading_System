@@ -7,6 +7,7 @@ import Navbar from "./Components/Navbar";
 import Students from "./Pages/Students";
 import Grades from "./Pages/Grades";
 import StudentGrades from "./Pages/StudentGrades";
+import ParentGrades from "./Pages/ParentGrades";
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -84,6 +85,12 @@ const App = () => {
           path="/student-grades"
           element={
             user && user.role === "Student" ? <StudentGrades /> : <Navigate to="/" />
+          }
+        />
+        <Route
+          path="/parent-grades"
+          element={
+            user && user.role === "Parent" ? <ParentGrades /> : <Navigate to="/" />
           }
         />
       </Routes>
