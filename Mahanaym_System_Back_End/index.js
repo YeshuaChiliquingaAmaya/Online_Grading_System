@@ -72,28 +72,48 @@ app.post("/login", (req, res) => {
   });
 });
 
-app.get("/students", (req, res) => {
+app.get("/subjects/:subjectId/students", (req, res) => {
+  const { subjectId } = req.params;
+
   const query = `
     SELECT 
-      users.id AS studentId, 
-      users.name AS studentName, 
-      grades.id AS gradeId, 
-      grades.grade, 
+      users.id AS studentId,
+      users.name AS studentName,
+      grades.grade,
+      grades.comments,
+      grades.evaluation_type,
+      grades.created_at,
       subjects.name AS subjectName
-    FROM users
-    JOIN grades ON users.id = grades.student_id
+    FROM grades
+    JOIN users ON grades.student_id = users.id
     JOIN subjects ON grades.subject_id = subjects.id
-    WHERE users.role_id = 3; -- 3 corresponde a "Student"
+    WHERE grades.subject_id = ? AND users.role_id = 3 -- Solo estudiantes
+    ORDER BY users.name;
   `;
 
-  db.query(query, (err, results) => {
+  db.query(query, [subjectId], (err, results) => {
     if (err) {
-      console.error("Error al obtener estudiantes:", err.message);
-      return res.status(500).send("Error al obtener estudiantes");
+      console.error("Error al obtener estudiantes por materia:", err.message);
+      return res.status(500).send("Error al obtener estudiantes por materia");
     }
     res.json(results);
   });
 });
+
+app.get("/subjects", (req, res) => {
+  const query = `
+    SELECT id AS subjectId, name AS subjectName FROM subjects ORDER BY name;
+  `;
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error("Error al obtener materias:", err.message);
+      return res.status(500).send("Error al obtener materias");
+    }
+    res.json(results);
+  });
+});
+
 
 app.post("/grades", (req, res) => {
   const { studentId, subjectId, evaluationType, grade, comment } = req.body;
@@ -186,7 +206,28 @@ app.get("/students/:studentId/subjects", (req, res) => {
   });
 });
 
+app.get("/students", (req, res) => {
+  const query = `
+    SELECT 
+      users.id AS studentId, 
+      users.name AS studentName, 
+      grades.id AS gradeId, 
+      grades.grade, 
+      subjects.name AS subjectName
+    FROM users
+    JOIN grades ON users.id = grades.student_id
+    JOIN subjects ON grades.subject_id = subjects.id
+    WHERE users.role_id = 3; -- 3 corresponde a "Student"
+  `;
 
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error("Error al obtener estudiantes:", err.message);
+      return res.status(500).send("Error al obtener estudiantes");
+    }
+    res.json(results);
+  });
+});
 
 // Iniciar el servidor
 const PORT = process.env.PORT || 5000;

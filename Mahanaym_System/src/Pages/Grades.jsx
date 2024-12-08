@@ -9,14 +9,12 @@ const Grades = () => {
   const [grade, setGrade] = useState("");
   const [comment, setComment] = useState("");
 
-  // Cargar estudiantes al iniciar el componente
   useEffect(() => {
     const fetchStudents = async () => {
       try {
         const response = await fetch("http://localhost:5000/students");
         if (response.ok) {
           const data = await response.json();
-          // Filtrar duplicados basándonos en el ID del estudiante
           const uniqueStudents = Array.from(
             new Map(data.map((item) => [item.studentId, item])).values()
           );
@@ -31,7 +29,6 @@ const Grades = () => {
     fetchStudents();
   }, []);
 
-  // Cargar materias del estudiante seleccionado
   useEffect(() => {
     if (selectedStudent) {
       const fetchSubjects = async () => {
@@ -41,9 +38,12 @@ const Grades = () => {
           );
           if (response.ok) {
             const data = await response.json();
-            setSubjects(data);
+            const uniqueSubjects = Array.from(
+              new Map(data.map((item) => [item.subjectId, item])).values()
+            );
+            setSubjects(uniqueSubjects);
           } else {
-            console.error("Error al obtener materias del estudiante");
+            console.error("Error al obtener materias");
           }
         } catch (error) {
           console.error("Error:", error);
@@ -51,11 +51,10 @@ const Grades = () => {
       };
       fetchSubjects();
     } else {
-      setSubjects([]); // Resetear materias si no hay estudiante seleccionado
+      setSubjects([]);
     }
   }, [selectedStudent]);
 
-  // Manejar el envío del formulario
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -92,7 +91,6 @@ const Grades = () => {
     <div>
       <h1>Gestión de Notas</h1>
       <form onSubmit={handleSubmit}>
-        {/* Seleccionar estudiante */}
         <div className="form-group">
           <label htmlFor="studentId">Seleccionar Estudiante</label>
           <select
@@ -110,7 +108,6 @@ const Grades = () => {
           </select>
         </div>
 
-        {/* Seleccionar materia (solo si hay estudiante seleccionado) */}
         {selectedStudent && (
           <div className="form-group">
             <label htmlFor="subjectId">Seleccionar Materia</label>
@@ -130,7 +127,6 @@ const Grades = () => {
           </div>
         )}
 
-        {/* Seleccionar tipo de evaluación */}
         <div className="form-group">
           <label htmlFor="evaluationType">Tipo de Evaluación</label>
           <select
@@ -146,7 +142,6 @@ const Grades = () => {
           </select>
         </div>
 
-        {/* Introducir la nota */}
         <div className="form-group">
           <label htmlFor="grade">Nota</label>
           <input
@@ -160,7 +155,6 @@ const Grades = () => {
           />
         </div>
 
-        {/* Comentario opcional */}
         <div className="form-group">
           <label htmlFor="comment">Comentario</label>
           <textarea
@@ -170,7 +164,6 @@ const Grades = () => {
           />
         </div>
 
-        {/* Botón de enviar */}
         <button type="submit" className="btn btn-primary">
           Registrar Nota
         </button>
