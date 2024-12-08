@@ -229,6 +229,35 @@ app.get("/students", (req, res) => {
   });
 });
 
+app.get("/students/grades", (req, res) => {
+  const studentId = req.query.studentId; // Obtener el ID del estudiante de la query
+
+  if (!studentId) {
+    return res.status(400).send("ID de estudiante requerido");
+  }
+
+  const query = `
+    SELECT 
+      subjects.name AS subjectName,
+      grades.evaluation_type,
+      grades.grade,
+      grades.comments,
+      grades.created_at
+    FROM grades
+    JOIN subjects ON grades.subject_id = subjects.id
+    WHERE grades.student_id = ?;
+  `;
+
+  db.query(query, [studentId], (err, results) => {
+    if (err) {
+      console.error("Error al obtener calificaciones:", err.message);
+      return res.status(500).send("Error al obtener calificaciones");
+    }
+    res.json(results);
+  });
+});
+
+
 // Iniciar el servidor
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

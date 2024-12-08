@@ -6,6 +6,7 @@ import Home from "./Pages/Home";
 import Navbar from "./Components/Navbar";
 import Students from "./Pages/Students";
 import Grades from "./Pages/Grades";
+import StudentGrades from "./Pages/StudentGrades";
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -51,31 +52,41 @@ const App = () => {
     <Router>
       {user && <Navbar user={user} onLogout={handleLogout} />}
       <div className="container mt-5">
-        <Routes>
-          <Route
-            path="/home"
-            element={user ? <Home user={user} /> : <Navigate to="/" />}
-          />
-          <Route
-            path="/"
-            element={
-              user ? (
-                <Navigate to="/home" />
-              ) : (
-                <Login handleLogin={handleLogin} />
-              )
-            }
-          />
-          <Route
-            path="/grades"
-            element={user && user.role === "Teacher" ? <Grades /> : <Navigate to="/" />}
-          />
-          <Route
-            path="/students"
-            element={user && user.role === "Teacher" ? <Students /> : <Navigate to="/" />}
-          />
-
-        </Routes>
+      <Routes>
+        {/* Página principal */}
+        <Route
+          path="/home"
+          element={user ? <Home user={user} /> : <Navigate to="/" />}
+        />
+        {/* Inicio de sesión */}
+        <Route
+          path="/"
+          element={
+            user ? (
+              <Navigate to="/home" />
+            ) : (
+              <Login handleLogin={handleLogin} />
+            )
+          }
+        />
+        {/* Gestión de notas - Profesores */}
+        <Route
+          path="/grades"
+          element={user && user.role === "Teacher" ? <Grades /> : <Navigate to="/" />}
+        />
+        {/* Gestión de estudiantes - Profesores */}
+        <Route
+          path="/students"
+          element={user && user.role === "Teacher" ? <Students /> : <Navigate to="/" />}
+        />
+        {/* Calificaciones - Estudiantes */}
+        <Route
+          path="/student-grades"
+          element={
+            user && user.role === "Student" ? <StudentGrades /> : <Navigate to="/" />
+          }
+        />
+      </Routes>
       </div>
     </Router>
   );
