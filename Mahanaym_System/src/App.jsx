@@ -8,6 +8,7 @@ import Students from "./Pages/Students";
 import Grades from "./Pages/Grades";
 import StudentGrades from "./Pages/StudentGrades";
 import ParentGrades from "./Pages/ParentGrades";
+import AdminPanel from "./Pages/AdminPanel";
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -91,6 +92,12 @@ const App = () => {
           path="/parent-grades"
           element={
             user && user.role === "Parent" ? <ParentGrades /> : <Navigate to="/" />
+          }
+        />
+        <Route
+          path="/manage-users"
+          element={
+            user && user.role === "Administrator" ? <AdminPanel /> : <Navigate to="/" />
           }
         />
       </Routes>

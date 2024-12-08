@@ -72,6 +72,7 @@ app.post("/login", (req, res) => {
   });
 });
 
+//ENDPOINTS PARA LOS ESTUDIANTES
 app.get("/subjects/:subjectId/students", (req, res) => {
   const { subjectId } = req.params;
 
@@ -257,6 +258,7 @@ app.get("/students/grades", (req, res) => {
   });
 });
 
+//ENDPOINTS PARA EL APARTADO DE PADRES
 app.get("/parents/students", (req, res) => {
   const parentId = req.query.parentId; // Obtener el ID del padre desde la query
 
@@ -342,6 +344,124 @@ app.get("/parents/students", (req, res) => {
     res.json(results);  // Enviar los resultados de los estudiantes al frontend
   });
 });
+
+//ADMINISTRADOR
+app.get("/admin/users", (req, res) => {
+  const query = `
+    SELECT id, name, email, role_id, created_at FROM users;
+  `;
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error("Error al obtener usuarios:", err.message);
+      return res.status(500).send("Error al obtener usuarios");
+    }
+    res.json(results);
+  });
+});
+
+app.post("/admin/users", (req, res) => {
+  const { name, email, password, role_id } = req.body;
+
+  const query = `
+    INSERT INTO users (name, email, password, role_id)
+    VALUES (?, ?, ?, ?);
+  `;
+
+  db.query(query, [name, email, password, role_id], (err, result) => {
+    if (err) {
+      console.error("Error al agregar usuario:", err.message);
+      return res.status(500).send("Error al agregar usuario");
+    }
+    res.status(201).send("Usuario agregado correctamente");
+  });
+});
+
+app.put("/admin/users/:id", (req, res) => {
+  const { name, email, password, role_id } = req.body;
+  const userId = req.params.id;
+
+  const query = `
+    UPDATE users
+    SET name = ?, email = ?, password = ?, role_id = ?
+    WHERE id = ?;
+  `;
+
+  db.query(query, [name, email, password, role_id, userId], (err, result) => {
+    if (err) {
+      console.error("Error al actualizar usuario:", err.message);
+      return res.status(500).send("Error al actualizar usuario");
+    }
+    res.send("Usuario actualizado correctamente");
+  });
+});
+
+app.delete("/admin/users/:id", (req, res) => {
+  const userId = req.params.id;
+
+  const query = `
+    DELETE FROM users WHERE id = ?;
+  `;
+
+  db.query(query, [userId], (err, result) => {
+    if (err) {
+      console.error("Error al eliminar usuario:", err.message);
+      return res.status(500).send("Error al eliminar usuario");
+    }
+    res.send("Usuario eliminado correctamente");
+  });
+});
+
+app.get("/admin/parents", (req, res) => {
+  const query = `
+    SELECT id, name, email FROM users WHERE role_id = 4;
+  `;
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error("Error al obtener padres:", err.message);
+      return res.status(500).send("Error al obtener padres");
+    }
+    res.json(results);  // Enviar los resultados al frontend
+  });
+});
+
+app.get("/admin/students", (req, res) => {
+  const query = `
+    SELECT id, name, email FROM users WHERE role_id = 3;
+  `;
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error("Error al obtener estudiantes:", err.message);
+      return res.status(500).send("Error al obtener estudiantes");
+    }
+    res.json(results);  // Enviar los resultados al frontend
+  });
+});
+
+app.post("/admin/parents/students", (req, res) => {
+  const { parentId, studentIds } = req.body;
+
+  if (!parentId || studentIds.length === 0) {
+    return res.status(400).send("Debe seleccionar un padre y al menos un estudiante.");
+  }
+
+  const query = `
+    INSERT INTO parents_students (parent_id, student_id) VALUES ?
+  `;
+
+  const values = studentIds.map(studentId => [parentId, studentId]);
+
+  db.query(query, [values], (err, result) => {
+    if (err) {
+      console.error("Error al agregar relación padre-estudiante:", err.message);
+      return res.status(500).send("Error al agregar relación padre-estudiante");
+    }
+    res.status(201).send("Relación padre-estudiante agregada correctamente");
+  });
+});
+
 
 
 
