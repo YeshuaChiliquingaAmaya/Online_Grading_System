@@ -151,11 +151,21 @@ npm install
 npm run dev
 ```
 ------------ CREDENCIALES -------------
+
 admin@example.com  ||| adminpass
 
 ana.teacher@example.com || teacher123
 
 maria.student@example.com || student123
+
+-----------------------------------------
+
+base de datos en linea:
+https://console.clever-cloud.com/users/me/addons/addon_40e41740-53be-4b97-baef-4efeca8e5823
+
+credenciales:
+Usuario: cocoa1ricacao@gmail.com
+Contraseña: Cocoa12345
 
 ---
 
