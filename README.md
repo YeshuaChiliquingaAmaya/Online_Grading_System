@@ -56,27 +56,10 @@ El backend está construido con **Node.js** y utiliza **Express** para manejar p
 
 1. **Navegar al directorio del backend**:
    ```bash
-   cd backend
+   cd Mahanaym_System_Back_End
    ```
 
-2. **Instalar dependencias**:
-   ```bash
-   npm install
-   ```
-
-3. **Configurar variables de entorno**:
-   - Crea un archivo `.env` en la carpeta `backend` con el siguiente contenido:
-     ```
-     DB_HOST=localhost
-     DB_USER=tu_usuario
-     DB_PASSWORD=tu_contraseña
-     DB_NAME=nombre_de_la_base_de_datos
-     DB_PORT=3306
-     SECRET_KEY=tu_clave_secreta
-     ```
-   - Asegúrate de reemplazar `tu_usuario`, `tu_contraseña` y `nombre_de_la_base_de_datos` con los valores correspondientes de tu base de datos.
-
-4. **Iniciar el servidor backend**:
+2. **Iniciar el servidor backend**:
    ```bash
    node index.js
    ```
@@ -94,7 +77,7 @@ El frontend está construido con **React** y utiliza **Vite** como herramienta d
 
 1. **Navegar al directorio del frontend**:
    ```bash
-   cd frontend
+   cd Mahanaym_System
    ```
 
 2. **Instalar dependencias**:
@@ -102,7 +85,7 @@ El frontend está construido con **React** y utiliza **Vite** como herramienta d
    npm install
    ```
 
-3. **Configurar variables de entorno (opcional)**:
+3. **Configurar variables de entorno (no necesario)**:
    - Crea un archivo `.env` en la carpeta `frontend` con el siguiente contenido:
      ```
      VITE_API_URL=http://localhost:5000
