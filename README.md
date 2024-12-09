@@ -150,6 +150,12 @@ npm install
 # Iniciar el servidor de desarrollo del frontend
 npm run dev
 ```
+------------ CREDENCIALES -------------
+admin@example.com  ||| adminpass
+
+ana.teacher@example.com || teacher123
+
+maria.student@example.com || student123
 
 ---
 
